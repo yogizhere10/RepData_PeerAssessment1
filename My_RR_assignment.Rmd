@@ -1,0 +1,99 @@
+This is my assignment for reproducible Research 
+================================================
+
+Reading file
+```{r}
+activity <- read.csv("activity.csv", header = TRUE)
+activity$date <- as.Date(activity$date,format="%Y-%m-%d")
+```
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(VIM)
+library(mice)
+activity %>% group_by(date) %>% summarize(sumstep = sum(steps, na.rm = TRUE)) %>%
+  ggplot(aes(x = sumstep, fill = "red")) + geom_histogram() + xlab("Sum steps") + ggtitle("Sum steps by date")
+dev.copy(png, file = "plot1.png")
+dev.off()
+```
+
+```{r}
+activity %>% group_by(date) %>% summarise(meanSteps = mean(steps, na.rm = TRUE)) %>%
+  ggplot(aes(x = date, y = meanSteps)) + geom_line() + 
+  ggtitle("Mean Steps by Date") + xlab("Date") + ylab("Mean Steps")
+dev.copy(png, file = "plot2.png")
+dev.off()
+
+```
+
+```{r}
+mean_steps <- mean(activity$steps, na.rm = TRUE)
+print(mean_steps)
+median_steps <- median(activity$steps, na.rm = TRUE)
+print(median_steps)
+```
+
+
+```{r}
+activity %>% group_by(interval) %>% summarise(meanstep_interval = mean(steps, na.rm = TRUE)) %>% filter(meanstep_interval == max(meanstep_interval))
+```
+
+```{r}
+activity %>% group_by(interval) %>% summarise(meanstep_interval = mean(steps, na.rm = TRUE)) %>% filter(meanstep_interval == min(meanstep_interval))
+```
+
+```{r}
+missing <- sum(is.na(activity))
+missing
+
+```
+
+```{r}
+aggr(activity, numbers = TRUE)
+```
+
+```{r}
+complete_activity <- activity[complete.cases(activity),]
+```
+
+```{r}
+complete_activity %>% group_by(date) %>% summarize(sumstep = sum(steps, na.rm = TRUE)) %>%
+  ggplot(aes(x = sumstep, fill = "red")) + geom_histogram(bins = 15) + xlab("Sum steps") + ggtitle("Sum steps by date")
+dev.copy(png, file = "plot3.png")
+dev.off()
+```
+
+```{r}
+complete_activity %>% group_by(date) %>% summarise(meanSteps = mean(steps, na.rm = TRUE)) %>%
+  ggplot(aes(x = date, y = meanSteps)) + geom_line() + 
+  ggtitle("Mean Steps by Date") + xlab("Date") + ylab("Mean Steps")
+dev.copy(png, file = "plot4.png")
+dev.off()
+```
+
+```{r}
+wactivity <- complete_activity %>% mutate(dayOfWeek = weekdays(date)) %>%
+  mutate(Weekend = ifelse(dayOfWeek == "Saturday" | dayOfWeek == "Sunday", "Weekend", "Weekday"))
+wactivity %>% 
+  group_by(Weekend, interval) %>% mutate(meanStepsInterval = mean(steps)) %>%
+  ggplot(aes(x = interval, y = meanStepsInterval)) + geom_line() +
+  facet_wrap(~Weekend) +ggtitle("Mean Steps by Interval: Weekday vs. Weekend") + 
+  xlab("Interval") + ylab("Mean Steps")
+dev.copy(png, file = "plot5.png")
+dev.off()
+```
+
+
+
+
+
+
+
+
+
